@@ -1,0 +1,60 @@
+services:
+  # 1. Database Service
+  db:
+    image: postgres:17-alpine
+    container_name: cyclopoint-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=cyclopoint
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Ollama AI Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: cyclopoint-ai
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  # 3. Ollama Puller Service (Fixed Indentation)
+  ollama-pull-model:
+    image: ollama/ollama:latest
+    container_name: cyclopoint-ai-puller
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: /bin/sh
+    command: -c "sleep 5; ollama pull llama3"
+    depends_on:
+      - ollama
+
+  # 4. Spring Boot Application Service
+  app:
+    build: .
+    container_name: cyclopoint-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/cyclopoint
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_AI_OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  ollama_data:

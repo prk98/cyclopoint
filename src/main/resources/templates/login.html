@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Join CycloPoint</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		.fade-in {
+			animation: fadeIn 0.3s ease-in;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(-10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	</style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+
+	<div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+
+		<div class="flex border-b border-gray-700">
+			<button id="loginBtn" onclick="toggleAuth('login')"
+				class="w-1/2 py-4 font-bold text-emerald-500 border-b-2 border-emerald-500 bg-gray-800/50">Login</button>
+			<button id="registerBtn" onclick="toggleAuth('register')"
+				class="w-1/2 py-4 font-bold text-gray-400 hover:text-emerald-400">Register</button>
+		</div>
+
+		<div class="p-8">
+			<div id="loginSection" class="fade-in">
+				<h2 class="text-xl font-semibold mb-6">Welcome Back</h2>
+				<form th:action="@{/login}" method="POST" class="space-y-4">
+					<input type="text" name="username" placeholder="Username" required
+						class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+					<input type="password" name="password" placeholder="Password" required
+						class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+					<button type="submit"
+						class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold transition-all">Sign
+						In</button>
+				</form>
+				<p class="mt-6 text-center text-sm text-gray-400">
+					New here? <button onclick="toggleAuth('register')" class="text-emerald-500 hover:underline">Grow
+						your forest today</button>
+				</p>
+			</div>
+
+			<div id="registerSection" class="hidden fade-in">
+				<h2 class="text-xl font-semibold mb-6 text-emerald-500">Start Your Journey</h2>
+				<form th:action="@{/register}" method="POST" class="space-y-4">
+					<input type="text" name="username" placeholder="Choose Username" required
+						class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+					<input type="password" name="password" placeholder="Create Password" required
+						class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+					<button type="submit"
+						class="w-full py-3 bg-emerald-700 hover:bg-emerald-600 rounded-lg font-bold transition-all">Create
+						Account</button>
+				</form>
+				<p class="mt-6 text-center text-sm text-gray-400">
+					Already registered? <button onclick="toggleAuth('login')"
+						class="text-emerald-500 hover:underline">Back to Login</button>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function toggleAuth(mode) {
+			const loginSection = document.getElementById('loginSection');
+			const registerSection = document.getElementById('registerSection');
+			const loginBtn = document.getElementById('loginBtn');
+			const registerBtn = document.getElementById('registerBtn');
+
+			if (mode === 'register') {
+				loginSection.classList.add('hidden');
+				registerSection.classList.remove('hidden');
+				registerBtn.classList.add('text-emerald-500', 'border-b-2', 'border-emerald-500', 'bg-gray-800/50');
+				loginBtn.classList.remove('text-emerald-500', 'border-b-2', 'border-emerald-500', 'bg-gray-800/50');
+				loginBtn.classList.add('text-gray-400');
+			} else {
+				registerSection.classList.add('hidden');
+				loginSection.classList.remove('hidden');
+				loginBtn.classList.add('text-emerald-500', 'border-b-2', 'border-emerald-500', 'bg-gray-800/50');
+				registerBtn.classList.remove('text-emerald-500', 'border-b-2', 'border-emerald-500', 'bg-gray-800/50');
+				registerBtn.classList.add('text-gray-400');
+			}
+		}
+	</script>
+</body>
+
+</html>
