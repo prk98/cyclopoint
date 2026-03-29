@@ -27,12 +27,14 @@
 			overscroll-behavior-y: contain;
 			/* Prevents "pull-to-refresh" */
 		}
+
 		.copyable {
-		    cursor: copy;
-		    transition: background 0.2s;
+			cursor: copy;
+			transition: background 0.2s;
 		}
+
 		.copyable:active {
-		    background: rgba(16, 185, 129, 0.3) !important;
+			background: rgba(16, 185, 129, 0.3) !important;
 		}
 
 		.glass-card {
@@ -60,12 +62,13 @@
 			background: rgba(16, 185, 129, 0.2);
 			border-radius: 10px;
 		}
+
 		.chat-timestamp {
-		    font-size: 0.65rem;
-		    color: rgba(16, 185, 129, 0.4);
-		    text-transform: uppercase;
-		    letter-spacing: 0.05em;
-		    margin-top: 4px;
+			font-size: 0.65rem;
+			color: rgba(16, 185, 129, 0.4);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			margin-top: 4px;
 		}
 
 		@keyframes fadeIn {
@@ -135,7 +138,7 @@
 						</div>
 						<div>
 							<label class="block text-xs uppercase tracking-wider text-emerald-400 mb-1">End Date</label>
-							<input type="date" id="endDate" name="endDate" required
+							<input type="date" id="endDate" name="endDate"
 								class="w-full bg-emerald-900/50 border border-emerald-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white">
 						</div>
 					</div>
@@ -234,25 +237,38 @@
 	</div>
 	<script th:inline="javascript">
 		let svg, arc, updateLunarTracker;
-				const totalDays = 28;
-				const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'User';
-				
+		const totalDays = 28;
+		const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'User';
+
 		function copyToClipboard(text, element) {
-		    navigator.clipboard.writeText(text).then(() => {
-		        const originalText = element.innerText;
-		        element.innerText = "✓ Copied";
-		        setTimeout(() => { element.innerText = originalText; }, 1000);
-		    });
+			navigator.clipboard.writeText(text).then(() => {
+				const originalText = element.innerText;
+				element.innerText = "✓ Copied";
+				setTimeout(() => {element.innerText = originalText;}, 1000);
+			});
 		}
-		
-		
+
+
 
 		document.addEventListener("DOMContentLoaded", function () {
 			const width = 400;
 			const height = 400;
 			const innerRadius = 120;
 			const outerRadius = 160;
+			
+			const today = new Date().toISOString().split('T')[0];
 
+			// Users cannot select a start date before today
+			const startInput = document.getElementById('startDate');
+			const endInput = document.getElementById('endDate');
+
+			startInput.setAttribute('min', today);
+
+			// Logic: End date cannot be before the Start date
+			startInput.addEventListener('change', function () {
+				endInput.setAttribute('min', startInput.value);
+			});
+			
 			// Initialize SVG
 			svg = d3.select("#lunar-tracker")
 				.append("svg")
@@ -315,64 +331,75 @@
 
 		// Update saveCycle to use the new function
 		async function saveCycle() {
-			const form = document.getElementById('cycleForm');
-			const formData = new FormData(form);
-			const data = Object.fromEntries(formData.entries());
+		    const form = document.getElementById('cycleForm');
+		    const formData = new FormData(form);
+		    const data = Object.fromEntries(formData.entries());
 
-			try {
-				const response = await fetch('/api/v1/tracker/log', {
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({...data, intensity: parseInt(data.intensity)})
-				});
+		    // Fix: If endDate is an empty string, set it to null so Java treats it as 'Ongoing'
+		    if (!data.endDate || data.endDate === "") {
+		        data.endDate = null;
+		    }
 
-				if (response.ok) {
-					form.reset();
-					showForestToast();
-					// This now works because updateLunarTracker is in the global scope!
-					if (updateLunarTracker) updateLunarTracker();
-				}
-			} catch (error) {
-				console.error("The woods are blocked:", error);
-			}
+		    try {
+		        const response = await fetch('/api/v1/tracker/log', {
+		            method: 'POST',
+		            headers: {'Content-Type': 'application/json'},
+		            body: JSON.stringify({
+		                ...data, 
+		                intensity: parseInt(data.intensity)
+		            })
+		        });
+
+		        if (response.ok) {
+		            form.reset();
+		            showForestToast();
+		            // Refresh the D3 tracker immediately
+		            if (typeof updateLunarTracker === 'function') await updateLunarTracker();
+		            
+		            // Optional: Reload page to update the "Days Until Next" thymeleaf text
+		            // window.location.reload(); 
+		        }
+		    } catch (error) {
+		        console.error("The woods are blocked:", error);
+		    }
 		}
 		// --- Draggable Logic ---
-		    const chatWindow = document.getElementById("aiChatWindow");
-		    const chatHeader = chatWindow.querySelector('.p-4'); // Selects the top bar
-		    chatHeader.style.cursor = 'move';
+		const chatWindow = document.getElementById("aiChatWindow");
+		const chatHeader = chatWindow.querySelector('.p-4'); // Selects the top bar
+		chatHeader.style.cursor = 'move';
 
-		    chatHeader.addEventListener("mousedown", (e) => {
-		        isDragging = true;
-		        offsetX = e.clientX - chatWindow.getBoundingClientRect().left;
-		        offsetY = e.clientY - chatWindow.getBoundingClientRect().top;
-		        chatWindow.style.transition = "none";
-		    });
+		chatHeader.addEventListener("mousedown", (e) => {
+			isDragging = true;
+			offsetX = e.clientX - chatWindow.getBoundingClientRect().left;
+			offsetY = e.clientY - chatWindow.getBoundingClientRect().top;
+			chatWindow.style.transition = "none";
+		});
 
-		    document.addEventListener("mousemove", (e) => {
-		        if (!isDragging) return;
-		        chatWindow.style.position = 'fixed';
-		        chatWindow.style.left = `${e.clientX - offsetX}px`;
-		        chatWindow.style.top = `${e.clientY - offsetY}px`;
-		        chatWindow.style.bottom = "auto";
-		        chatWindow.style.right = "auto";
-		    });
+		document.addEventListener("mousemove", (e) => {
+			if (!isDragging) return;
+			chatWindow.style.position = 'fixed';
+			chatWindow.style.left = `${e.clientX - offsetX}px`;
+			chatWindow.style.top = `${e.clientY - offsetY}px`;
+			chatWindow.style.bottom = "auto";
+			chatWindow.style.right = "auto";
+		});
 
-		    document.addEventListener("mouseup", () => {
-		        isDragging = false;
-		        chatWindow.style.transition = "all 0.3s ease";
-		    });
-		
+		document.addEventListener("mouseup", () => {
+			isDragging = false;
+			chatWindow.style.transition = "all 0.3s ease";
+		});
+
 		async function askAI() {
-		    const promptInput = document.getElementById('aiPrompt');
-		    const responseBox = document.getElementById('aiResponse');
-		    let userQuery = promptInput.value;
-		    if (!userQuery) return;
+			const promptInput = document.getElementById('aiPrompt');
+			const responseBox = document.getElementById('aiResponse');
+			let userQuery = promptInput.value;
+			if (!userQuery) return;
 
-		    if (responseBox.querySelector('p.italic')) responseBox.innerHTML = '';
-		    const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			if (responseBox.querySelector('p.italic')) responseBox.innerHTML = '';
+			const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
-		    // User Message
-		    responseBox.innerHTML += `
+			// User Message
+			responseBox.innerHTML += `
 		        <div class="flex flex-col items-end mb-4 animate-fadeIn">
 		            <div class="bg-emerald-500 text-emerald-950 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%] shadow-lg">
 		                ${userQuery}
@@ -380,9 +407,9 @@
 		            <span class="chat-timestamp">${CURRENT_USER_NAME} • ${timeNow}</span>
 		        </div>`;
 
-		    // AI Message
-		    const aiMessageId = 'ai-' + Date.now();
-		    responseBox.innerHTML += `
+			// AI Message
+			const aiMessageId = 'ai-' + Date.now();
+			responseBox.innerHTML += `
 		        <div class="flex flex-col items-start mb-4">
 		            <div id="${aiMessageId}" 
 		                 onclick="copyToClipboard(this.innerText, this)"
@@ -392,25 +419,25 @@
 		            <span class="chat-timestamp text-left w-full">Clinical System</span>
 		        </div>`;
 
-		    promptInput.value = '';
-		    responseBox.scrollTop = responseBox.scrollHeight;
+			promptInput.value = '';
+			responseBox.scrollTop = responseBox.scrollHeight;
 
-		    try {
-		        const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(userQuery)}`);
-		        const reader = response.body.getReader();
-		        const decoder = new TextDecoder();
-		        const aiBubble = document.getElementById(aiMessageId);
-		        aiBubble.innerHTML = ''; 
+			try {
+				const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(userQuery)}`);
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				const aiBubble = document.getElementById(aiMessageId);
+				aiBubble.innerHTML = '';
 
-		        while (true) {
-		            const {done, value} = await reader.read();
-		            if (done) break;
-		            aiBubble.innerHTML += decoder.decode(value, {stream: true}).replace(/data:/g, '');
-		            responseBox.scrollTop = responseBox.scrollHeight;
-		        }
-		    } catch (error) {
-		        document.getElementById(aiMessageId).innerHTML = '<span class="text-red-400">Connection lost...</span>';
-		    }
+				while (true) {
+					const {done, value} = await reader.read();
+					if (done) break;
+					aiBubble.innerHTML += decoder.decode(value, {stream: true}).replace(/data:/g, '');
+					responseBox.scrollTop = responseBox.scrollHeight;
+				}
+			} catch (error) {
+				document.getElementById(aiMessageId).innerHTML = '<span class="text-red-400">Connection lost...</span>';
+			}
 		}
 
 

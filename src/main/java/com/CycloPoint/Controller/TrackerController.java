@@ -2,9 +2,12 @@ package com.CycloPoint.Controller;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,11 +69,16 @@ public class TrackerController {
 	    List<PeriodRecord> history = repository.findByUser(currentUser); 
 	    
 	    String contextData = history.stream()
-	            .sorted((a, b) -> b.getStartDate().compareTo(a.getStartDate())) // Get newest first
-	            .limit(5) 
-	            .map(r -> "Dates: " + r.getStartDate() + " to " + r.getEndDate() + " | Intensity: " + r.getIntensity() + "/5")
-	            .reduce("", (a, b) -> a + "\n" + b);
-
+	    	    .sorted((a, b) -> b.getStartDate().compareTo(a.getStartDate()))
+	    	    .limit(10) // AI models can easily handle 10-15 records now
+	    	    .map(r -> String.format(
+	    	        "Entry: [%s to %s] | Intensity: %d/5 | Status: %s",
+	    	        r.getStartDate(), 
+	    	        (r.getEndDate() != null ? r.getEndDate() : "ACTIVE"), 
+	    	        r.getIntensity(),
+	    	        (r.getEndDate() == null ? "CURRENTLY BLEEDING" : "COMPLETED")
+	    	    ))
+	    	    .collect(Collectors.joining("\n"));
 	    return chatClient.prompt()
 	    	    .system(s -> s.text("You are a clinical health assistant. Tone: Professional, direct, and concise. "
 	    	            + "Analyze the user's provided health history strictly: " + contextData + ". "
@@ -82,5 +90,39 @@ public class TrackerController {
 	    	    .stream()
 	    	    .content();
 	}
+	@GetMapping("/active-check")
+	public ResponseEntity<PeriodRecord> getActiveCycle(Principal principal) {
+	    User currentUser = userRepository.findByUsername(principal.getName());
+	    // Find a record where end_date is NULL
+	    return ResponseEntity.ok(repository.findTopByUserAndEndDateIsNullOrderByStartDateDesc(currentUser));
+	}
+	
+	@PutMapping("/close-active")
+	public ResponseEntity<?> closeActiveCycle(@RequestBody Map<String, String> payload, Principal principal) {
+	    // 1. Get the UUID of the logged-in user (assuming 'id' comes from your session/auth)
+	    // For this example, I'll use the record lookup directly
+		User user = userRepository.findByUsername(principal.getName());
+		UUID userId =user.getId();
+	   
+	    String endDateStr = payload.get("endDate");
+	    LocalDate endDate = (endDateStr != null) ? LocalDate.parse(endDateStr) : LocalDate.now();
 
+	    // 2. Find the ONE active cycle for this user
+	    PeriodRecord record = repository.findFirstByUserIdAndEndDateIsNull(userId)
+	            .orElseThrow(() -> new RuntimeException("No active cycle found to close!"));
+
+	    // 3. Security Check
+	    if (!record.getUser().getUsername().equals(principal.getName())) {
+	        return ResponseEntity.status(403).build();
+	    }
+
+	    // 4. Close the Path
+	    record.setEndDate(endDate);
+	    repository.save(record);
+
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("success", true);
+	    response.put("message", "The forest path has been completed.");
+	    return ResponseEntity.ok(response);
+	}
 }

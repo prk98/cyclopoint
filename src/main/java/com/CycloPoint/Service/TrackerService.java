@@ -31,25 +31,32 @@ public class TrackerService {
 	}
 
 	public List<Map<String, Object>> getHeatmapStats(UUID userId) {
-		List<PeriodRecord> records = repository.findByUserId(userId);
-		List<Map<String, Object>> points = new ArrayList<>();
+	    List<PeriodRecord> records = repository.findByUserId(userId);
+	    List<Map<String, Object>> points = new ArrayList<>();
+	    
+	    // 1. Get "today" once at the start of the method
+	    LocalDate today = LocalDate.now();
 
-		for (PeriodRecord record : records) {
-			LocalDate current = record.getStartDate();
-			LocalDate end = record.getEndDate();
+	    for (PeriodRecord record : records) {
+	        LocalDate start = record.getStartDate();
+	        if (start == null) continue;
 
-			// Loop through every day in the range
-			while (!current.isAfter(end)) {
-				Map<String, Object> point = new HashMap<>();
-				// Cal-Heatmap needs Unix Seconds (not milliseconds)
-				point.put("timestamp", current.atStartOfDay(ZoneOffset.UTC).toEpochSecond());
-				point.put("weight", record.getIntensity());
-				points.add(point);
+	        // 2. Use the variable 'today' here
+	        LocalDate end = (record.getEndDate() != null) ? record.getEndDate() : today;
 
-				current = current.plusDays(1);
-			}
-		}
-		return points;
+	        LocalDate current = start;
+	        
+	        // 3. Loop through the range
+	        // If start is after end (e.g. data error), this loop simply won't run.
+	        while (!current.isAfter(end)) { 
+	            Map<String, Object> point = new HashMap<>();
+	            point.put("timestamp", current.atStartOfDay(ZoneOffset.UTC).toEpochSecond());
+	            point.put("weight", record.getIntensity());
+	            points.add(point);
+	            
+	            current = current.plusDays(1);
+	        }
+	    }
+	    return points;
 	}
-
 }

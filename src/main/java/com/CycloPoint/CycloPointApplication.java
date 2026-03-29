@@ -1,3 +1,7 @@
+/**
+ * CycloPoint: Harmonizing with life's natural rhythm.
+ * * This project is dedicated to Akansha 💖.
+ */
 package com.CycloPoint;
 
 import org.springframework.boot.SpringApplication;
