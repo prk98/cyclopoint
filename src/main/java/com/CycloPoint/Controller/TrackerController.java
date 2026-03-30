@@ -45,7 +45,8 @@ public class TrackerController {
 	    String username = principal.getName();
 	    
 	    // 2. Fetch the User entity (Assuming you have a userRepository injected)
-	    User currentUser = userRepository.findByUsername(username);
+	    User currentUser = userRepository.findByUsername(username)
+	    .orElseThrow(() -> new RuntimeException("User not found"));
 	    
 	    // 3. Attach the user to the record
 	    record.setUser(currentUser);
@@ -65,7 +66,8 @@ public class TrackerController {
 	public Flux<String> askAi(@RequestParam String question,Principal principal) {
 		
 		String username =principal.getName();
-		User currentUser = userRepository.findByUsername(username);
+		User currentUser = userRepository.findByUsername(username)
+		.orElseThrow(() -> new RuntimeException("User not found"));
 	    List<PeriodRecord> history = repository.findByUser(currentUser); 
 	    
 	    String contextData = history.stream()
@@ -92,7 +94,8 @@ public class TrackerController {
 	}
 	@GetMapping("/active-check")
 	public ResponseEntity<PeriodRecord> getActiveCycle(Principal principal) {
-	    User currentUser = userRepository.findByUsername(principal.getName());
+	    User currentUser = userRepository.findByUsername(principal.getName())
+	    		.orElseThrow(() -> new RuntimeException("User not found"));
 	    // Find a record where end_date is NULL
 	    return ResponseEntity.ok(repository.findTopByUserAndEndDateIsNullOrderByStartDateDesc(currentUser));
 	}
@@ -101,7 +104,9 @@ public class TrackerController {
 	public ResponseEntity<?> closeActiveCycle(@RequestBody Map<String, String> payload, Principal principal) {
 	    // 1. Get the UUID of the logged-in user (assuming 'id' comes from your session/auth)
 	    // For this example, I'll use the record lookup directly
-		User user = userRepository.findByUsername(principal.getName());
+		User user = userRepository.findByUsername(principal.getName())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+				
 		UUID userId =user.getId();
 	   
 	    String endDateStr = payload.get("endDate");

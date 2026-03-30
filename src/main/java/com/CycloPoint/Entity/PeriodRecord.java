@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "period_records")
 public class PeriodRecord {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
@@ -27,6 +28,7 @@ public class PeriodRecord {
 	private LocalDate endDate;
 	private String emotions;
 	private Integer intensity; // 1-5 scale
+	private String mood;
 	private String notes;
 
 	public UUID getId() {
@@ -69,13 +71,7 @@ public class PeriodRecord {
 		this.intensity = intensity;
 	}
 
-	public String getNotes() {
-		return notes;
-	}
 
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
 	public User getUser() {
 		return user;
 	}
@@ -83,6 +79,23 @@ public class PeriodRecord {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	public String getMood() {
+		return mood;
+	}
+
+	public void setMood(String mood) {
+		this.mood = mood;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+	
 
 
 }

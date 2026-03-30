@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.CycloPoint.Entity.PeriodRecord;
 import com.CycloPoint.Entity.User;
@@ -36,20 +37,22 @@ public class ViewController {
 
 	@GetMapping("/")
 	public String index(Model model, Principal principal) {
-	    if (principal != null) {
-	        // 1. Get the current logged-in user
-	        String username = principal.getName();
-	        User currentUser = userRepository.findByUsername(username);
+		if (principal != null) {
+			// 1. Get the current logged-in user
+			String username = principal.getName();
+			User currentUser = userRepository.findByUsername(username)
+					.orElseThrow(() -> new RuntimeException("User not found"));
+		
 
-	        // 2. Fetch ONLY their records
-	        List<PeriodRecord> userRecords = repository.findByUser(currentUser);
-	        
-	        // 3. Add to the model for Thymeleaf to render
-	        model.addAttribute("history", userRecords);
-	        model.addAttribute("username", username);
-	    }
-	    
-	    return "index";
+			// 2. Fetch ONLY their records
+			List<PeriodRecord> userRecords = repository.findByUser(currentUser);
+
+			// 3. Add to the model for Thymeleaf to render
+			model.addAttribute("history", userRecords);
+			model.addAttribute("username", username);
+		}
+
+		return "index";
 	}
 
 	@GetMapping("/login")
@@ -58,7 +61,16 @@ public class ViewController {
 	}
 
 	@PostMapping("/register")
-	public String registerUser(@RequestParam String username, @RequestParam String password) {
+	public String registerUser(@RequestParam String username, @RequestParam String password,
+			RedirectAttributes redirectAttributes) {
+		if (username.length() < 3 || password.length() < 6) {
+			redirectAttributes.addFlashAttribute("error", "username[3+] and passsword[6+] too short.");
+			return "redirect:/login?register";
+		}
+		if (userRepository.findByUsername(username).isPresent()) {
+			redirectAttributes.addFlashAttribute("error", "That name is already taken in this forest.");
+			return "redirect:/login?register";
+		}
 		User user = new User();
 		user.setUsername(username);
 		user.setPassword(passwordEncoder.encode(password));

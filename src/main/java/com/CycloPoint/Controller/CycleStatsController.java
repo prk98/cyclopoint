@@ -3,6 +3,7 @@ package com.CycloPoint.Controller;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,8 @@ public class CycleStatsController {
 	}
 	@GetMapping("/heatmap")
 	public ResponseEntity<List<Map<String, Object>>> getHeatmap(Principal principal) {
-	    User user = userRepository.findByUsername(principal.getName());
+	    User user = userRepository.findByUsername(principal.getName())
+	    		.orElseThrow(() -> new RuntimeException("User not found"));
 	    return ResponseEntity.ok(service.getHeatmapStats(user.getId()));
 	}
 	

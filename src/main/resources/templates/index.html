@@ -2,503 +2,364 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta name="viewport"
-		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="apple-mobile-web-app-title" content="CycloPoint">
-	<script src="https://d3js.org/d3.v7.min.js"></script>
-	<script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
-	<script src="https://unpkg.com/@popperjs/core@2"></script>
-	<script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
-	<link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>CycloPoint Tracker</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<style>
-		body {
-			background: linear-gradient(135deg, #1a2e1a 0%, #064e3b 100%);
-			min-height: 100vh;
-			-webkit-tap-highlight-color: transparent;
-			-webkit-touch-callout: none;
-			-webkit-user-select: none;
-			user-select: none;
-			overscroll-behavior-y: contain;
-			/* Prevents "pull-to-refresh" */
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CycloPoint | Akansha's Sanctuary</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #064e3b, #020617);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #ecfdf5;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+        }
 
-		.copyable {
-			cursor: copy;
-			transition: background 0.2s;
-		}
+        .glass-card {
+            background: rgba(31, 41, 55, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
 
-		.copyable:active {
-			background: rgba(16, 185, 129, 0.3) !important;
-		}
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
 
-		.glass-card {
-			background: rgba(255, 255, 255, 0.05);
-			backdrop-filter: blur(12px);
-			border: 1px solid rgba(255, 255, 255, 0.1);
-		}
+        .stat-glow { filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4)); }
 
-		input,
-		#aiPrompt {
-			-webkit-user-select: text;
-			/* Allow typing in the AI box! */
-			user-select: text;
-		}
+        input, #aiPrompt { user-select: text; -webkit-user-select: text; }
 
-		::-webkit-scrollbar {
-			width: 6px;
-		}
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 10px; }
 
-		::-webkit-scrollbar-track {
-			background: transparent;
-		}
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-icon { animation: float 4s ease-in-out infinite; }
 
-		::-webkit-scrollbar-thumb {
-			background: rgba(16, 185, 129, 0.2);
-			border-radius: 10px;
-		}
+        .chat-timestamp {
+            font-size: 0.65rem;
+            color: rgba(16, 185, 129, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
 
-		.chat-timestamp {
-			font-size: 0.65rem;
-			color: rgba(16, 185, 129, 0.4);
-			text-transform: uppercase;
-			letter-spacing: 0.05em;
-			margin-top: 4px;
-		}
-
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(5px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		.animate-fadeIn {
-			animation: fadeIn 0.3s ease-out forwards;
-		}
-
-		@keyframes pulseGlow {
-			0% {
-				filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.4));
-				opacity: 0.8;
-			}
-
-			50% {
-				filter: drop-shadow(0 0 20px rgba(52, 211, 153, 1));
-				opacity: 1;
-			}
-
-			100% {
-				filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.4));
-				opacity: 0.8;
-			}
-		}
-
-		.new-entry-pulse {
-			animation: pulseGlow 2s infinite ease-in-out;
-		}
-	</style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        
+        .new-entry-pulse {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.4)); }
+            50% { filter: drop-shadow(0 0 20px rgba(52, 211, 153, 1)); }
+        }
+    </style>
 </head>
 
-<body class="text-emerald-50 font-sans p-4 md:p-8">
+<body class="p-4 md:p-8">
 
-	<div class="max-w-5xl mx-auto">
-		<header class="mb-10 text-center">
-			<h1 class="text-4xl font-light tracking-widest uppercase mb-2">CycloPoint</h1>
-			<h1>Welcome to your forest, <span th:text="${username}">User</span>!</h1>
-			<div
-				class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs mb-4">
-				✨ Next cycle predicted in:
-				<span class="font-bold text-emerald-100"
-					th:text="${daysUntilNext != null ? daysUntilNext + ' days' : 'Calculating...'}"></span>
-			</div>
-			<p class="text-emerald-400/60 text-sm italic">Harmonizing with your natural rhythm.</p>
-		</header>
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div class="text-center md:text-left">
+                <h1 id="greeting" class="text-3xl font-bold tracking-tight text-white mb-1">Welcome, Akansha</h1>
+                <p class="text-emerald-400/60 text-sm font-medium tracking-wide">YOUR FOREST IS BREATHING STABLE</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-black/20 p-2 rounded-2xl border border-white/5">
+                <div class="text-right px-2">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest leading-none">Next Phase</p>
+                    <p class="text-sm font-bold text-emerald-400" th:text="${daysUntilNext != null ? daysUntilNext + ' Days' : 'Calculating...'}">-- Days</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-xl">✨</div>
+            </div>
+        </header>
 
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-			<section class="glass-card p-6 rounded-3xl shadow-2xl lg:col-span-1 h-fit">
-				<h2 class="text-xl font-semibold mb-6 flex items-center"><span class="mr-2">🌱</span> Log New Cycle</h2>
-				<form th:action="@{/api/v1/tracker/log}" method="post" class="space-y-4" id="cycleForm">
-					<div class="space-y-4">
-						<div>
-							<label class="block text-xs uppercase tracking-wider text-emerald-400 mb-1">Start
-								Date</label>
-							<input type="date" id="startDate" name="startDate" required
-								class="w-full bg-emerald-900/50 border border-emerald-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white">
-						</div>
-						<div>
-							<label class="block text-xs uppercase tracking-wider text-emerald-400 mb-1">End Date</label>
-							<input type="date" id="endDate" name="endDate"
-								class="w-full bg-emerald-900/50 border border-emerald-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white">
-						</div>
-					</div>
-					<div>
-						<label class="block text-xs uppercase tracking-wider text-emerald-400 mb-1">Intensity</label>
-						<input type="range" name="intensity" min="1" max="5" step="1" value="3"
-							class="w-full h-2 bg-emerald-900 rounded-lg appearance-none cursor-pointer accent-emerald-500">
-					</div>
-					<button type="button" onclick="saveCycle()"
-						class="w-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold py-3 rounded-xl transition-all shadow-lg">Save
-						Entry</button>
-				</form>
-			</section>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-4 space-y-8">
+                <section class="glass-card p-6 rounded-[2.5rem]">
+                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-3">
+                        <span class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">📝</span>
+                        Record Journey
+                    </h2>
+                    <form id="cycleForm" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">Start</label>
+                                <input type="date" id="startDate" name="startDate" required
+                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">End</label>
+                                <input type="date" id="endDate" name="endDate"
+                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[10px] uppercase font-bold text-gray-400 px-2">
+                                <span>Intensity</span>
+                                <span id="intensityVal">3/5</span>
+                            </div>
+                            <input type="range" name="intensity" min="1" max="5" value="3" 
+                                oninput="document.getElementById('intensityVal').innerText = this.value + '/5'"
+                                class="w-full h-1.5 bg-emerald-900 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+                        </div>
+                        <button type="button" onclick="saveCycle()" 
+                            class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95">
+                            Update Forest
+                        </button>
+                    </form>
+                </section>
 
-			<div class="lg:col-span-2 space-y-8">
-				<section class="glass-card p-6 rounded-3xl shadow-2xl">
-					<div class="flex justify-between items-center mb-6">
-						<h2 class="text-xl font-semibold flex items-center"><span class="mr-2">🌲</span> Forest Density
-						</h2>
+                <section class="glass-card p-6 rounded-[2.5rem]">
+                    <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Daily Check-in</h2>
+                    <div class="flex justify-between gap-2">
+                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">😴</button>
+                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">💧</button>
+                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">🍫</button>
+                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">🧘</button>
+                    </div>
+                </section>
+            </div>
 
-						<div class="flex items-center space-x-4">
-							<div class="relative">
-								<button onclick="toggleHistory()"
-									class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] uppercase tracking-widest py-2 px-4 rounded-full border border-emerald-500/30 transition-all flex items-center">
-									History <span class="ml-2">▾</span>
-								</button>
-								<div id="historyDropdown"
-									class="hidden absolute right-0 mt-3 w-[300px] md:w-[450px] glass-card rounded-2xl shadow-2xl z-50 p-4 border border-white/10 max-h-[400px] overflow-y-auto">
-									<h3 class="text-xs font-bold text-emerald-400 mb-3 border-b border-white/5 pb-2">
-										Recent Paths</h3>
-									<table class="w-full text-[11px] text-left">
-										<tbody class="divide-y divide-white/5">
-											<tr th:each="record : ${phases}">
-												<td class="py-2 text-emerald-100"
-													th:text="${record.startDate} + ' - ' + ${record.endDate}"></td>
-												<td class="py-2 text-center text-emerald-400"
-													th:text="${record.intensity} + '/5'"></td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
+            <div class="lg:col-span-5 space-y-8">
+                <section class="glass-card p-8 rounded-[3rem] relative overflow-hidden min-h-[450px] flex flex-col items-center justify-center">
+                    <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/leaf.png')] opacity-5"></div>
+                    
+                    <div id="lunar-tracker" class="w-full max-w-[340px] aspect-square stat-glow"></div>
+                    
+                    <div class="absolute text-center pointer-events-none">
+                        <p class="text-[10px] tracking-[0.3em] text-emerald-500/60 uppercase">Current Status</p>
+                        <h3 id="phase-label" class="text-2xl font-light text-white tracking-widest">Forest Quiet</h3>
+                        <p id="cycle-day" class="text-xs text-gray-400 mt-1 italic">Day --</p>
+                    </div>
+                </section>
+            </div>
 
-					<div class="relative flex flex-col items-center justify-center min-h-[400px]">
-						<div id="lunar-tracker" class="w-full max-w-[400px] aspect-square transition-all duration-700">
-						</div>
+            <div class="lg:col-span-3 space-y-8">
+                <section class="glass-card p-6 rounded-[2.5rem] flex flex-col items-center text-center">
+                    <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-4">Hydration</p>
+                    <div class="relative w-24 h-24 flex items-center justify-center mb-4">
+                        <svg class="w-full h-full">
+                            <circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" />
+                            <circle class="progress-ring__circle" cx="48" cy="48" r="40" stroke="#10b981" stroke-width="6" fill="transparent" 
+                                    stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round"/>
+                        </svg>
+                        <span class="absolute text-sm font-bold">1.2L</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400">Akansha, keep your rhythm flowing.</p>
+                </section>
 
-						<div class="absolute flex flex-col items-center text-center pointer-events-none">
-							<span class="text-[10px] uppercase tracking-[0.2em] text-emerald-500/60 mb-1">Current
-								Phase</span>
-							<span id="phase-label" class="text-xl font-light text-emerald-100 tracking-widest">Forest
-								Quiet</span>
-							<span id="cycle-day" class="text-[10px] text-emerald-400/40 mt-1 italic">Day --</span>
-						</div>
-					</div>
-				</section>
-			</div>
-		</div>
-	</div>
+                <section class="glass-card p-6 rounded-[2.5rem] h-full max-h-[350px] overflow-hidden relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-bold uppercase text-gray-400 tracking-tighter">Paths Taken</h3>
+                        <button onclick="toggleHistory()" class="text-[10px] text-emerald-400 hover:underline">View</button>
+                    </div>
+                    <div class="space-y-3 overflow-y-auto h-48 pr-2" id="historyList">
+                        <div th:each="record : ${phases}" class="flex justify-between items-center p-3 bg-black/20 rounded-xl border border-white/5">
+                            <div>
+                                <p class="text-[10px] font-bold text-emerald-100" th:text="${record.startDate}">Date</p>
+                                <p class="text-[9px] text-gray-500" th:text="${record.endDate != null ? 'to ' + record.endDate : 'Ongoing'}"></p>
+                            </div>
+                            <span class="text-[10px] px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-md" th:text="${record.intensity + '/5'}"></span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 
-	<div id="aiContainer" class="fixed bottom-6 right-6 z-50">
-		<div id="aiChatWindow"
-			class="hidden glass-card w-80 md:w-96 rounded-3xl shadow-2xl mb-4 border border-emerald-500/20 overflow-hidden flex flex-col scale-95 opacity-0 transition-all duration-300 transform origin-bottom-right">
-			<div class="p-4 bg-emerald-500/10 border-b border-white/5 flex justify-between items-center">
-				<span class="text-xs font-bold uppercase tracking-widest text-emerald-300">Assistant</span>
-				<button onclick="toggleAI()" class="text-emerald-500 hover:text-white">✕</button>
-			</div>
-			<div id="aiResponse"
-				class="h-64 overflow-y-auto p-4 text-xs text-emerald-100/80 bg-black/20 leading-relaxed scroll-smooth">
-				<p class="italic opacity-40"> Ask me anything...</p>
-			</div>
-			<div class="p-3 bg-emerald-950/50">
-				<div class="relative">
-					<input type="text" id="aiPrompt" placeholder="How's my rhythm?"
-						class="w-full bg-emerald-900/50 border border-emerald-700 rounded-full py-2 px-4 pr-10 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-400">
-					<button onclick="askAI()"
-						class="absolute right-1 top-1 bg-emerald-500 text-emerald-950 p-1.5 rounded-full hover:bg-white transition-colors">
-						<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-								d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-						</svg>
-					</button>
-				</div>
-			</div>
-		</div>
+    <div id="aiContainer" class="fixed bottom-8 right-8 z-50">
+        <div id="aiChatWindow" class="hidden glass-card w-80 md:w-96 rounded-[2rem] shadow-2xl mb-4 border border-emerald-500/20 flex flex-col scale-95 opacity-0 transition-all duration-300 transform origin-bottom-right">
+            <div class="p-5 bg-emerald-500/10 border-b border-white/5 flex justify-between items-center cursor-move" id="aiHeader">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Assistant AI</span>
+                </div>
+                <button onclick="toggleAI()" class="text-gray-400 hover:text-white transition-colors">✕</button>
+            </div>
+            <div id="aiResponse" class="h-64 overflow-y-auto p-5 text-[11px] text-emerald-100/80 bg-black/10 leading-relaxed scroll-smooth">
+                <p class="italic opacity-40">Ask me anything about your cycle, Akansha...</p>
+            </div>
+            <div class="p-4 bg-emerald-950/20">
+                <div class="relative">
+                    <input type="text" id="aiPrompt" placeholder="How's my rhythm?" 
+                           class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 pr-12 text-xs focus:ring-1 focus:ring-emerald-400 outline-none">
+                    <button onclick="askAI()" class="absolute right-2 top-2 bg-emerald-500 text-emerald-950 p-2 rounded-xl hover:bg-white transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-		<button id="aiFab" onclick="toggleAI()"
-			class="w-14 h-14 bg-emerald-500 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group">
-			<span class="text-2xl group-hover:rotate-12 transition-transform">✨</span>
-			<span class="absolute -top-1 -right-1 flex h-3 w-3"><span
-					class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span
-					class="relative inline-flex rounded-full h-3 w-3 bg-emerald-300"></span></span>
-		</button>
-	</div>
-	<script th:inline="javascript">
-		let svg, arc, updateLunarTracker;
-		const totalDays = 28;
-		const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'User';
+        <button id="aiFab" onclick="toggleAI()" class="w-16 h-16 bg-emerald-500 rounded-2xl shadow-2xl flex items-center justify-center hover:rotate-6 hover:scale-110 active:scale-95 transition-all duration-300 group">
+            <span class="text-2xl float-icon">✨</span>
+        </button>
+    </div>
 
-		function copyToClipboard(text, element) {
-			navigator.clipboard.writeText(text).then(() => {
-				const originalText = element.innerText;
-				element.innerText = "✓ Copied";
-				setTimeout(() => {element.innerText = originalText;}, 1000);
-			});
-		}
+    <script th:inline="javascript">
+        let svg, arc, updateLunarTracker;
+        const totalDays = 28;
+        const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'Akansha';
 
+        // 1. Dynamic Greeting
+        function updateGreeting() {
+            const hr = new Date().getHours();
+            const name = CURRENT_USER_NAME;
+            const greet = hr < 12 ? "Good Morning" : hr < 18 ? "Good Afternoon" : "Good Evening";
+            document.getElementById('greeting').innerText = `${greet}, ${name}`;
+        }
 
+        // 2. D3 Lunar Tracker Implementation
+        function initD3() {
+            const width = 340, height = 340;
+            const innerRadius = 100, outerRadius = 135;
 
-		document.addEventListener("DOMContentLoaded", function () {
-			const width = 400;
-			const height = 400;
-			const innerRadius = 120;
-			const outerRadius = 160;
-			
-			const today = new Date().toISOString().split('T')[0];
+            svg = d3.select("#lunar-tracker")
+                .append("svg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
 
-			// Users cannot select a start date before today
-			const startInput = document.getElementById('startDate');
-			const endInput = document.getElementById('endDate');
+            arc = d3.arc()
+                .innerRadius(innerRadius)
+                .outerRadius(outerRadius)
+                .startAngle(d => (d.day - 1) * (2 * Math.PI / totalDays))
+                .endAngle(d => d.day * (2 * Math.PI / totalDays))
+                .padAngle(0.04)
+                .cornerRadius(6);
 
-			startInput.setAttribute('min', today);
+            updateLunarTracker = async function () {
+                try {
+                    const response = await fetch('/api/cycles/heatmap');
+                    const data = await response.json();
+                    svg.selectAll("path").remove();
 
-			// Logic: End date cannot be before the Start date
-			startInput.addEventListener('change', function () {
-				endInput.setAttribute('min', startInput.value);
-			});
-			
-			// Initialize SVG
-			svg = d3.select("#lunar-tracker")
-				.append("svg")
-				.attr("viewBox", `0 0 ${width} ${height}`)
-				.append("g")
-				.attr("transform", `translate(${width / 2},${height / 2})`);
+                    // Background Rings
+                    const daysData = Array.from({length: totalDays}, (_, i) => ({day: i + 1}));
+                    svg.selectAll(".day-bg")
+                        .data(daysData).enter().append("path")
+                        .attr("d", arc).attr("fill", "rgba(16, 185, 129, 0.05)")
+                        .attr("stroke", "rgba(255, 255, 255, 0.03)");
 
-			// Initialize Arc shape
-			arc = d3.arc()
-				.innerRadius(innerRadius)
-				.outerRadius(outerRadius)
-				.startAngle(d => (d.day - 1) * (2 * Math.PI / totalDays))
-				.endAngle(d => d.day * (2 * Math.PI / totalDays))
-				.padAngle(0.05)
-				.cornerRadius(4);
+                    // Active Data
+                    svg.selectAll(".day-active")
+                        .data(data.slice(-totalDays)).enter().append("path")
+                        .attr("class", "animate-fadeIn")
+                        .attr("d", (d, i) => arc({day: i + 1}))
+                        .attr("fill", d => d.weight >= 4 ? "#34d399" : d.weight >= 2 ? "#10b981" : "#064e3b")
+                        .on("mouseover", (e, d) => {
+                            d3.select("#phase-label").text("Active Growth");
+                            d3.select("#cycle-day").text(`Intensity: ${d.weight}/5`);
+                        })
+                        .on("mouseout", () => {
+                            d3.select("#phase-label").text("Forest Quiet");
+                            d3.select("#cycle-day").text("Day --");
+                        });
+                } catch (e) { console.error("Data sync failed", e); }
+            };
+            updateLunarTracker();
+        }
 
-			// Define the update function
-			updateLunarTracker = async function () {
-				try {
-					const response = await fetch('/api/cycles/heatmap');
-					const data = await response.json();
+        // 3. Save Cycle Function
+        async function saveCycle() {
+            const form = document.getElementById('cycleForm');
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            if (!payload.endDate) payload.endDate = null;
 
-					// Clear background and active paths to redraw cleanly
-					svg.selectAll("path").remove();
+            try {
+                const response = await fetch('/api/v1/tracker/log', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...payload, intensity: parseInt(payload.intensity)})
+                });
 
-					// Draw Background Rings
-					const daysData = Array.from({length: totalDays}, (_, i) => ({day: i + 1}));
-					svg.selectAll(".day-bg")
-						.data(daysData)
-						.enter()
-						.append("path")
-						.attr("d", arc)
-						.attr("fill", "rgba(16, 185, 129, 0.05)")
-						.attr("stroke", "rgba(16, 185, 129, 0.1)");
+                if (response.ok) {
+                    form.reset();
+                    showForestToast();
+                    if (updateLunarTracker) await updateLunarTracker();
+                }
+            } catch (err) { console.error(err); }
+        }
 
-					// Draw Active Segments
-					svg.selectAll(".day-active")
-						.data(data.slice(-totalDays))
-						.enter()
-						.append("path")
-						.attr("class", (d, i) => i === (data.slice(-totalDays).length - 1) ? "new-entry-pulse" : "animate-fadeIn")
-						.attr("d", (d, i) => arc({day: i + 1})) // Map data index to circle position
-						.attr("fill", d => d.weight >= 4 ? "#34d399" : d.weight >= 2 ? "#10b981" : "#064e3b")
-						.on("mouseover", (e, d) => {
-							d3.select("#phase-label").text("Active Growth");
-							d3.select("#cycle-day").text(`Intensity: ${d.weight}/5`);
-						})
-						.on("mouseout", () => {
-							d3.select("#phase-label").text("Forest Quiet");
-							d3.select("#cycle-day").text("Day --");
-						});
-				} catch (e) {
-					console.error("Forest data sync failed", e);
-				}
-			};
+        // 4. AI Chat Logic
+        async function askAI() {
+            const promptInput = document.getElementById('aiPrompt');
+            const responseBox = document.getElementById('aiResponse');
+            const query = promptInput.value;
+            if (!query) return;
 
-			// Initial load
-			updateLunarTracker();
-		});
+            responseBox.innerHTML += `<div class="flex flex-col items-end mb-4 animate-fadeIn">
+                <div class="bg-emerald-500 text-emerald-950 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%] font-semibold">${query}</div>
+            </div>`;
+            
+            promptInput.value = '';
+            const aiId = 'ai-' + Date.now();
+            responseBox.innerHTML += `<div class="flex flex-col mb-4 animate-fadeIn">
+                <div id="${aiId}" class="bg-white/10 text-emerald-100 px-3 py-2 rounded-2xl rounded-tl-none max-w-[85%] border border-white/5">...</div>
+            </div>`;
+            responseBox.scrollTop = responseBox.scrollHeight;
 
-		// Update saveCycle to use the new function
-		async function saveCycle() {
-		    const form = document.getElementById('cycleForm');
-		    const formData = new FormData(form);
-		    const data = Object.fromEntries(formData.entries());
+            try {
+                const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(query)}`);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                const bubble = document.getElementById(aiId);
+                bubble.innerText = '';
 
-		    // Fix: If endDate is an empty string, set it to null so Java treats it as 'Ongoing'
-		    if (!data.endDate || data.endDate === "") {
-		        data.endDate = null;
-		    }
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    bubble.innerText += decoder.decode(value, {stream: true}).replace(/data:/g, '');
+                    responseBox.scrollTop = responseBox.scrollHeight;
+                }
+            } catch (e) { document.getElementById(aiId).innerText = "The connection to the forest was lost..."; }
+        }
 
-		    try {
-		        const response = await fetch('/api/v1/tracker/log', {
-		            method: 'POST',
-		            headers: {'Content-Type': 'application/json'},
-		            body: JSON.stringify({
-		                ...data, 
-		                intensity: parseInt(data.intensity)
-		            })
-		        });
+        // UI Helpers
+        function toggleAI() {
+            const chat = document.getElementById('aiChatWindow');
+            chat.classList.toggle('hidden');
+            setTimeout(() => chat.classList.toggle('opacity-100'), 10);
+            setTimeout(() => chat.classList.toggle('scale-100'), 10);
+        }
 
-		        if (response.ok) {
-		            form.reset();
-		            showForestToast();
-		            // Refresh the D3 tracker immediately
-		            if (typeof updateLunarTracker === 'function') await updateLunarTracker();
-		            
-		            // Optional: Reload page to update the "Days Until Next" thymeleaf text
-		            // window.location.reload(); 
-		        }
-		    } catch (error) {
-		        console.error("The woods are blocked:", error);
-		    }
-		}
-		// --- Draggable Logic ---
-		const chatWindow = document.getElementById("aiChatWindow");
-		const chatHeader = chatWindow.querySelector('.p-4'); // Selects the top bar
-		chatHeader.style.cursor = 'move';
+        function showForestToast() {
+            const t = document.createElement('div');
+            t.className = "fixed top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-emerald-950 px-6 py-3 rounded-full font-bold shadow-2xl animate-fadeIn z-[100]";
+            t.innerText = "✨ Your forest has been updated.";
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
 
-		chatHeader.addEventListener("mousedown", (e) => {
-			isDragging = true;
-			offsetX = e.clientX - chatWindow.getBoundingClientRect().left;
-			offsetY = e.clientY - chatWindow.getBoundingClientRect().top;
-			chatWindow.style.transition = "none";
-		});
+        document.getElementById('aiPrompt').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); askAI(); }});
 
-		document.addEventListener("mousemove", (e) => {
-			if (!isDragging) return;
-			chatWindow.style.position = 'fixed';
-			chatWindow.style.left = `${e.clientX - offsetX}px`;
-			chatWindow.style.top = `${e.clientY - offsetY}px`;
-			chatWindow.style.bottom = "auto";
-			chatWindow.style.right = "auto";
-		});
-
-		document.addEventListener("mouseup", () => {
-			isDragging = false;
-			chatWindow.style.transition = "all 0.3s ease";
-		});
-
-		async function askAI() {
-			const promptInput = document.getElementById('aiPrompt');
-			const responseBox = document.getElementById('aiResponse');
-			let userQuery = promptInput.value;
-			if (!userQuery) return;
-
-			if (responseBox.querySelector('p.italic')) responseBox.innerHTML = '';
-			const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-
-			// User Message
-			responseBox.innerHTML += `
-		        <div class="flex flex-col items-end mb-4 animate-fadeIn">
-		            <div class="bg-emerald-500 text-emerald-950 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%] shadow-lg">
-		                ${userQuery}
-		            </div>
-		            <span class="chat-timestamp">${CURRENT_USER_NAME} • ${timeNow}</span>
-		        </div>`;
-
-			// AI Message
-			const aiMessageId = 'ai-' + Date.now();
-			responseBox.innerHTML += `
-		        <div class="flex flex-col items-start mb-4">
-		            <div id="${aiMessageId}" 
-		                 onclick="copyToClipboard(this.innerText, this)"
-		                 class="copyable bg-white/10 border border-white/5 text-emerald-100 px-3 py-2 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm">
-		                <span class="animate-pulse">...</span>
-		            </div>
-		            <span class="chat-timestamp text-left w-full">Clinical System</span>
-		        </div>`;
-
-			promptInput.value = '';
-			responseBox.scrollTop = responseBox.scrollHeight;
-
-			try {
-				const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(userQuery)}`);
-				const reader = response.body.getReader();
-				const decoder = new TextDecoder();
-				const aiBubble = document.getElementById(aiMessageId);
-				aiBubble.innerHTML = '';
-
-				while (true) {
-					const {done, value} = await reader.read();
-					if (done) break;
-					aiBubble.innerHTML += decoder.decode(value, {stream: true}).replace(/data:/g, '');
-					responseBox.scrollTop = responseBox.scrollHeight;
-				}
-			} catch (error) {
-				document.getElementById(aiMessageId).innerHTML = '<span class="text-red-400">Connection lost...</span>';
-			}
-		}
-
-
-		function toggleHistory() {
-			const dropdown = document.getElementById('historyDropdown');
-			dropdown.classList.toggle('hidden');
-		}
-
-		function toggleAI() {
-			const chat = document.getElementById('aiChatWindow');
-			const fab = document.getElementById('aiFab');
-
-			if (chat.classList.contains('hidden')) {
-				chat.classList.remove('hidden');
-				setTimeout(() => {
-					chat.classList.remove('scale-95', 'opacity-0');
-					chat.classList.add('scale-100', 'opacity-100');
-				}, 10);
-				fab.classList.add('rotate-90', 'opacity-0', 'pointer-events-none');
-			} else {
-				chat.classList.add('scale-95', 'opacity-0');
-				chat.classList.remove('scale-100', 'opacity-100');
-				setTimeout(() => {
-					chat.classList.add('hidden');
-					fab.classList.remove('rotate-90', 'opacity-0', 'pointer-events-none');
-				}, 300);
-			}
-		}
-
-		// Close dropdown/AI when clicking outside
-		window.onclick = function (event) {
-			if (!event.target.closest('#historyDropdown') && !event.target.closest('button[onclick="toggleHistory()"]')) {
-				document.getElementById('historyDropdown').classList.add('hidden');
-			}
-		}
-		// Get the input element
-		const aiPrompt = document.getElementById('aiPrompt');
-
-		// Listen for keypress
-		aiPrompt.addEventListener('keydown', function (event) {
-			// Check if "Enter" was pressed
-			if (event.key === 'Enter') {
-				// If Shift is NOT held down, submit the response
-				if (!event.shiftKey) {
-					event.preventDefault(); // Prevent a new line from being added
-					askAI(); // Call your existing function
-				}
-			}
-		});
-		// Add this helper function if it's missing
-		function showForestToast() {
-			const toast = document.createElement('div');
-			toast.className = "fixed top-4 right-4 bg-emerald-500 text-emerald-950 px-6 py-3 rounded-full shadow-2xl animate-fadeIn z-[100]";
-			toast.innerText = "✨ The forest grows stronger.";
-			document.body.appendChild(toast);
-			setTimeout(() => toast.remove(), 3000);
-		}
-
-
-
-	</script>
+        document.addEventListener("DOMContentLoaded", () => {
+            updateGreeting();
+            initD3();
+            // Restrict dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').setAttribute('max', today);
+        });
+    </script>
 </body>
-
 </html>
