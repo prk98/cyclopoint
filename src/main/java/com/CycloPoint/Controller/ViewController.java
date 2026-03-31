@@ -4,6 +4,7 @@ import java.beans.JavaBean;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.List;
 import java.util.Random;
 
@@ -42,14 +43,17 @@ public class ViewController {
 			String username = principal.getName();
 			User currentUser = userRepository.findByUsername(username)
 					.orElseThrow(() -> new RuntimeException("User not found"));
+			Boolean isNewUser = (currentUser.getWeight()==null);
 		
 
 			// 2. Fetch ONLY their records
 			List<PeriodRecord> userRecords = repository.findByUser(currentUser);
 
 			// 3. Add to the model for Thymeleaf to render
+			model.addAttribute("isNewUser", isNewUser);
 			model.addAttribute("history", userRecords);
 			model.addAttribute("username", username);
+			
 		}
 
 		return "index";

@@ -28,6 +28,25 @@ public class User {
 	// mappedBy refers to the "user" field in the PeriodRecord class
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PeriodRecord> records;
+	
+	private Double weight;
+	private String activityLevel;
+
+	public Double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+	public String getActivityLevel() {
+		return activityLevel;
+	}
+
+	public void setActivityLevel(String activityLevel) {
+		this.activityLevel = activityLevel;
+	}
 
 	// Standard Getters and Setters
 	public UUID getId() {

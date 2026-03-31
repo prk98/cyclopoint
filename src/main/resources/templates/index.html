@@ -2,87 +2,171 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>CycloPoint | Akansha's Sanctuary</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at top right, #064e3b, #020617);
-            background-attachment: fixed;
-            min-height: 100vh;
-            color: #ecfdf5;
-            -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: contain;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<title>CycloPoint | Akansha's Sanctuary</title>
 
-        .glass-card {
-            background: rgba(31, 41, 55, 0.4);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        }
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+		rel="stylesheet">
 
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
+	<style>
+		body {
+			font-family: 'Plus Jakarta Sans', sans-serif;
+			background: radial-gradient(circle at top right, #064e3b, #020617);
+			background-attachment: fixed;
+			min-height: 100vh;
+			color: #ecfdf5;
+			-webkit-tap-highlight-color: transparent;
+			overscroll-behavior-y: contain;
+		}
 
-        .stat-glow { filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4)); }
+		.glass-card {
+			background: rgba(31, 41, 55, 0.4);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+		}
 
-        input, #aiPrompt { user-select: text; -webkit-user-select: text; }
+		.progress-ring__circle {
+			transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+			transform: rotate(-90deg);
+			transform-origin: 50% 50%;
+		}
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 10px; }
+		.stat-glow {
+			filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+		}
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        .float-icon { animation: float 4s ease-in-out infinite; }
+		input,
+		#aiPrompt {
+			user-select: text;
+			-webkit-user-select: text;
+		}
 
-        .chat-timestamp {
-            font-size: 0.65rem;
-            color: rgba(16, 185, 129, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 4px;
-        }
+		::-webkit-scrollbar {
+			width: 4px;
+		}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        
-        .new-entry-pulse {
-            animation: pulseGlow 2s infinite ease-in-out;
-        }
-        @keyframes pulseGlow {
-            0%, 100% { filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.4)); }
-            50% { filter: drop-shadow(0 0 20px rgba(52, 211, 153, 1)); }
-        }
-    </style>
+		::-webkit-scrollbar-thumb {
+			background: rgba(16, 185, 129, 0.3);
+			border-radius: 10px;
+		}
+
+		@keyframes float {
+
+			0%,
+			100% {
+				transform: translateY(0px);
+			}
+
+			50% {
+				transform: translateY(-10px);
+			}
+		}
+
+		.float-icon {
+			animation: float 4s ease-in-out infinite;
+		}
+
+		.chat-timestamp {
+			font-size: 0.65rem;
+			color: rgba(16, 185, 129, 0.4);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			margin-top: 4px;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		/* This forces the browser's native picker to use dark colors */
+		input[type="date"]::-webkit-calendar-picker-indicator {
+		    filter: invert(1); /* Makes the icon white */
+		    cursor: pointer;
+		}
+
+		input[type="date"] {
+		    color-scheme: dark; /* Tells the browser to use a dark calendar theme */
+		}
+
+		.animate-fadeIn {
+			animation: fadeIn 0.4s ease-out forwards;
+		}
+
+		.new-entry-pulse {
+			animation: pulseGlow 2s infinite ease-in-out;
+		}
+
+		@keyframes pulseGlow {
+
+			0%,
+			100% {
+				filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.4));
+			}
+
+			50% {
+				filter: drop-shadow(0 0 20px rgba(52, 211, 153, 1));
+			}
+			
+		}
+	</style>
 </head>
 
 <body class="p-4 md:p-8">
+	<div id="onboardingOverlay" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center hidden">
+	    <div class="glass-card p-8 rounded-[3rem] max-w-md w-full mx-4 animate-fadeIn border-emerald-500/30">
+	        <div class="text-center mb-8">
+	            <div class="w-20 h-20 bg-emerald-500/20 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 float-icon">🌿</div>
+	            <h2 class="text-2xl font-bold text-white">Welcome to the Forest</h2>
+	            <p class="text-emerald-400/60 text-sm mt-2">Let's sync your physical rhythm.</p>
+	        </div>
+
+	        <form id="onboardingForm" class="space-y-6">
+	            <div class="space-y-4">
+	                <div>
+	                    <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">Body Weight (kg)</label>
+	                    <input type="number" name="weight" required placeholder="e.g. 65"
+	                        class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none text-white">
+	                </div>
+	                <div>
+	                    <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">Daily Activity Level</label>
+	                    <select name="activity" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none text-white appearance-none">
+	                        <option value="sedentary">Sedentary (Little/No Exercise)</option>
+	                        <option value="moderate" selected>Moderate (3-5 days/week)</option>
+	                        <option value="active">High (Daily intense exercise)</option>
+	                    </select>
+	                </div>
+	            </div>
+
+	            <button type="button" onclick="submitOnboarding()"
+	                class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 shadow-emerald-900/20">
+	                Begin My Journey
+	            </button>
+	        </form>
+	    </div>
+	</div>
 
     <div class="max-w-6xl mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
             <div class="text-center md:text-left">
                 <h1 id="greeting" class="text-3xl font-bold tracking-tight text-white mb-1">Welcome, Akansha</h1>
-                <p class="text-emerald-400/60 text-sm font-medium tracking-wide">YOUR FOREST IS BREATHING STABLE</p>
+                <p class="text-emerald-400/60 text-sm font-medium tracking-wide uppercase">Your Forest is Breathing Stable</p>
             </div>
-            
+
             <div class="flex items-center gap-4 bg-black/20 p-2 rounded-2xl border border-white/5">
                 <div class="text-right px-2">
                     <p class="text-[10px] text-gray-400 uppercase tracking-widest leading-none">Next Phase</p>
@@ -92,12 +176,12 @@
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <div class="lg:col-span-4 space-y-8">
-                <section class="glass-card p-6 rounded-[2.5rem]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+
+            <div class="lg:col-span-4 space-y-8 flex flex-col overflow-visible">
+                <section class="glass-card p-6 rounded-[2.5rem] flex-1">
                     <h2 class="text-lg font-semibold mb-6 flex items-center gap-3">
-                        <span class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">📝</span>
+                        <span class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 text-sm">📝</span>
                         Record Journey
                     </h2>
                     <form id="cycleForm" class="space-y-5">
@@ -105,12 +189,12 @@
                             <div class="space-y-1">
                                 <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">Start</label>
                                 <input type="date" id="startDate" name="startDate" required
-                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none text-white">
                             </div>
                             <div class="space-y-1">
                                 <label class="text-[10px] text-emerald-500/70 font-bold uppercase ml-2">End</label>
                                 <input type="date" id="endDate" name="endDate"
-                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 outline-none text-white">
                             </div>
                         </div>
                         <div class="space-y-2">
@@ -118,11 +202,11 @@
                                 <span>Intensity</span>
                                 <span id="intensityVal">3/5</span>
                             </div>
-                            <input type="range" name="intensity" min="1" max="5" value="3" 
+                            <input type="range" name="intensity" min="1" max="5" value="3"
                                 oninput="document.getElementById('intensityVal').innerText = this.value + '/5'"
                                 class="w-full h-1.5 bg-emerald-900 rounded-lg appearance-none cursor-pointer accent-emerald-400">
                         </div>
-                        <button type="button" onclick="saveCycle()" 
+                        <button type="button" onclick="saveCycle()"
                             class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95">
                             Update Forest
                         </button>
@@ -134,46 +218,46 @@
                     <div class="flex justify-between gap-2">
                         <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">😴</button>
                         <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">💧</button>
-                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">🍫</button>
+                        <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">💊</button>
                         <button class="flex-1 p-3 bg-white/5 hover:bg-emerald-500/20 rounded-2xl transition-all text-xl grayscale hover:grayscale-0">🧘</button>
                     </div>
                 </section>
             </div>
 
-            <div class="lg:col-span-5 space-y-8">
-                <section class="glass-card p-8 rounded-[3rem] relative overflow-hidden min-h-[450px] flex flex-col items-center justify-center">
-                    <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/leaf.png')] opacity-5"></div>
-                    
-                    <div id="lunar-tracker" class="w-full max-w-[340px] aspect-square stat-glow"></div>
-                    
-                    <div class="absolute text-center pointer-events-none">
-                        <p class="text-[10px] tracking-[0.3em] text-emerald-500/60 uppercase">Current Status</p>
+            <div class="lg:col-span-5">
+                <section class="glass-card p-8 rounded-[3rem] relative overflow-hidden h-full min-h-[500px] flex flex-col items-center justify-center">
+                    <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/leaf.png')] opacity-5 pointer-events-none"></div>
+
+                    <div id="lunar-tracker" class="w-full max-w-[340px] aspect-square stat-glow z-10"></div>
+
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
+                        <p id="cycle-day" class="text-[10px] tracking-[0.3em] text-emerald-500/60 uppercase mb-1">MARCH 2026</p>
                         <h3 id="phase-label" class="text-2xl font-light text-white tracking-widest">Forest Quiet</h3>
-                        <p id="cycle-day" class="text-xs text-gray-400 mt-1 italic">Day --</p>
+                        <p class="text-[8px] tracking-[0.2em] text-white/20 uppercase mt-4">Current Status</p>
                     </div>
                 </section>
             </div>
 
-            <div class="lg:col-span-3 space-y-8">
+            <div class="lg:col-span-3 space-y-8 flex flex-col">
                 <section class="glass-card p-6 rounded-[2.5rem] flex flex-col items-center text-center">
                     <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-4">Hydration</p>
                     <div class="relative w-24 h-24 flex items-center justify-center mb-4">
-                        <svg class="w-full h-full">
+                        <svg class="w-full h-full" viewBox="0 0 96 96">
                             <circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" />
-                            <circle class="progress-ring__circle" cx="48" cy="48" r="40" stroke="#10b981" stroke-width="6" fill="transparent" 
-                                    stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round"/>
+                            <circle class="progress-ring__circle" cx="48" cy="48" r="40" stroke="#10b981" stroke-width="6"
+                                fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round" />
                         </svg>
-                        <span class="absolute text-sm font-bold">1.2L</span>
+                        <span class="absolute text-sm font-bold text-white">1.2L</span>
                     </div>
-                    <p class="text-[11px] text-gray-400">Akansha, keep your rhythm flowing.</p>
+                    <p class="text-[11px] text-gray-400">Keep your rhythm flowing.</p>
                 </section>
 
-                <section class="glass-card p-6 rounded-[2.5rem] h-full max-h-[350px] overflow-hidden relative">
+                <section class="glass-card p-6 rounded-[2.5rem] flex-1 flex flex-col min-h-[300px]">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xs font-bold uppercase text-gray-400 tracking-tighter">Paths Taken</h3>
-                        <button onclick="toggleHistory()" class="text-[10px] text-emerald-400 hover:underline">View</button>
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400 tracking-widest">Paths Taken</h3>
+                        <button class="text-[10px] text-emerald-400 hover:underline">View</button>
                     </div>
-                    <div class="space-y-3 overflow-y-auto h-48 pr-2" id="historyList">
+                    <div class="space-y-3 overflow-y-auto pr-2 flex-1 max-h-[250px]" id="historyList">
                         <div th:each="record : ${phases}" class="flex justify-between items-center p-3 bg-black/20 rounded-xl border border-white/5">
                             <div>
                                 <p class="text-[10px] font-bold text-emerald-100" th:text="${record.startDate}">Date</p>
@@ -184,12 +268,11 @@
                     </div>
                 </section>
             </div>
-        </div>
-    </div>
-
-    <div id="aiContainer" class="fixed bottom-8 right-8 z-50">
-        <div id="aiChatWindow" class="hidden glass-card w-80 md:w-96 rounded-[2rem] shadow-2xl mb-4 border border-emerald-500/20 flex flex-col scale-95 opacity-0 transition-all duration-300 transform origin-bottom-right">
-            <div class="p-5 bg-emerald-500/10 border-b border-white/5 flex justify-between items-center cursor-move" id="aiHeader">
+        </div> 
+    </div> <div id="aiContainer" class="fixed bottom-8 right-8 z-50">
+        <div id="aiChatWindow"
+            class="hidden glass-card w-80 md:w-96 rounded-[2rem] shadow-2xl mb-4 border border-emerald-500/20 flex flex-col scale-95 opacity-0 transition-all duration-300 transform origin-bottom-right">
+            <div class="p-5 bg-emerald-500/10 border-b border-white/5 flex justify-between items-center cursor-move">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Assistant AI</span>
@@ -201,165 +284,229 @@
             </div>
             <div class="p-4 bg-emerald-950/20">
                 <div class="relative">
-                    <input type="text" id="aiPrompt" placeholder="How's my rhythm?" 
-                           class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 pr-12 text-xs focus:ring-1 focus:ring-emerald-400 outline-none">
+                    <input type="text" id="aiPrompt" placeholder="How's my rhythm?"
+                        class="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-4 pr-12 text-xs focus:ring-1 focus:ring-emerald-400 outline-none">
                     <button onclick="askAI()" class="absolute right-2 top-2 bg-emerald-500 text-emerald-950 p-2 rounded-xl hover:bg-white transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <button id="aiFab" onclick="toggleAI()" class="w-16 h-16 bg-emerald-500 rounded-2xl shadow-2xl flex items-center justify-center hover:rotate-6 hover:scale-110 active:scale-95 transition-all duration-300 group">
+        <button id="aiFab" onclick="toggleAI()"
+            class="w-16 h-16 bg-emerald-500 rounded-2xl shadow-2xl flex items-center justify-center hover:rotate-6 hover:scale-110 active:scale-95 transition-all duration-300 group">
             <span class="text-2xl float-icon">✨</span>
         </button>
     </div>
 
-    <script th:inline="javascript">
-        let svg, arc, updateLunarTracker;
-        const totalDays = 28;
-        const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'Akansha';
+	<script th:inline="javascript">
+	    // --- Global State & Configuration ---
+	    let svg, arc, updateLunarTracker;
+	    const CURRENT_USER_NAME = /*[[${#authentication.name}]]*/ 'Akansha';
 
-        // 1. Dynamic Greeting
-        function updateGreeting() {
-            const hr = new Date().getHours();
-            const name = CURRENT_USER_NAME;
-            const greet = hr < 12 ? "Good Morning" : hr < 18 ? "Good Afternoon" : "Good Evening";
-            document.getElementById('greeting').innerText = `${greet}, ${name}`;
-        }
+	    // Calendar Date Logic
+	    const now = new Date();
+	    const currentMonth = now.getMonth();
+	    const currentYear = now.getFullYear();
+	    const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+	    const monthName = now.toLocaleString('default', {month: 'long'});
 
-        // 2. D3 Lunar Tracker Implementation
-        function initD3() {
-            const width = 340, height = 340;
-            const innerRadius = 100, outerRadius = 135;
+	    // --- Core Functions ---
 
-            svg = d3.select("#lunar-tracker")
-                .append("svg")
-                .attr("viewBox", `0 0 ${width} ${height}`)
-                .append("g")
-                .attr("transform", `translate(${width / 2},${height / 2})`);
+	    function updateGreeting() {
+	        const hr = new Date().getHours();
+	        const name = CURRENT_USER_NAME;
+	        const greet = hr < 12 ? "Good Morning" : hr < 18 ? "Good Afternoon" : "Good Evening";
+	        const greetingElement = document.getElementById('greeting');
+	        if(greetingElement) greetingElement.innerText = `${greet}, ${name}`;
+	    }
 
-            arc = d3.arc()
-                .innerRadius(innerRadius)
-                .outerRadius(outerRadius)
-                .startAngle(d => (d.day - 1) * (2 * Math.PI / totalDays))
-                .endAngle(d => d.day * (2 * Math.PI / totalDays))
-                .padAngle(0.04)
-                .cornerRadius(6);
+	    function initD3() {
+	        const width = 340, height = 340;
+	        const innerRadius = 100, outerRadius = 144;
 
-            updateLunarTracker = async function () {
-                try {
-                    const response = await fetch('/api/cycles/heatmap');
-                    const data = await response.json();
-                    svg.selectAll("path").remove();
+	        d3.select("#lunar-tracker").selectAll("*").remove();
+	        svg = d3.select("#lunar-tracker")
+	            .append("svg")
+	            .attr("viewBox", `0 0 ${width} ${height}`)
+	            .append("g")
+	            .attr("transform", `translate(${width / 2},${height / 2})`);
 
-                    // Background Rings
-                    const daysData = Array.from({length: totalDays}, (_, i) => ({day: i + 1}));
-                    svg.selectAll(".day-bg")
-                        .data(daysData).enter().append("path")
-                        .attr("d", arc).attr("fill", "rgba(16, 185, 129, 0.05)")
-                        .attr("stroke", "rgba(255, 255, 255, 0.03)");
+	        arc = d3.arc()
+	            .innerRadius(innerRadius)
+	            .outerRadius(outerRadius)
+	            .startAngle(d => (d.day - 1) * (2 * Math.PI / totalDaysInMonth))
+	            .endAngle(d => d.day * (2 * Math.PI / totalDaysInMonth))
+	            .padAngle(0.03)
+	            .cornerRadius(4);
 
-                    // Active Data
-                    svg.selectAll(".day-active")
-                        .data(data.slice(-totalDays)).enter().append("path")
-                        .attr("class", "animate-fadeIn")
-                        .attr("d", (d, i) => arc({day: i + 1}))
-                        .attr("fill", d => d.weight >= 4 ? "#34d399" : d.weight >= 2 ? "#10b981" : "#064e3b")
-                        .on("mouseover", (e, d) => {
-                            d3.select("#phase-label").text("Active Growth");
-                            d3.select("#cycle-day").text(`Intensity: ${d.weight}/5`);
-                        })
-                        .on("mouseout", () => {
-                            d3.select("#phase-label").text("Forest Quiet");
-                            d3.select("#cycle-day").text("Day --");
-                        });
-                } catch (e) { console.error("Data sync failed", e); }
-            };
-            updateLunarTracker();
-        }
+	        updateLunarTracker = async function () {
+	            try {
+	                const response = await fetch('/api/cycles/heatmap');
+	                const data = await response.json();
+	                svg.selectAll("path").remove();
 
-        // 3. Save Cycle Function
-        async function saveCycle() {
-            const form = document.getElementById('cycleForm');
-            const formData = new FormData(form);
-            const payload = Object.fromEntries(formData.entries());
-            if (!payload.endDate) payload.endDate = null;
+	                const monthDaysData = Array.from({length: totalDaysInMonth}, (_, i) => ({day: i + 1}));
 
-            try {
-                const response = await fetch('/api/v1/tracker/log', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({...payload, intensity: parseInt(payload.intensity)})
-                });
+	                svg.selectAll(".day-bg")
+	                    .data(monthDaysData).enter().append("path")
+	                    .attr("d", arc)
+	                    .attr("fill", "rgba(16, 185, 129, 0.05)")
+	                    .attr("stroke", "rgba(255, 255, 255, 0.03)")
+	                    .attr("class", "cursor-pointer transition-all duration-300")
+	                    .on("mouseover", function (e, d) {
+	                        d3.select(this).attr("fill", "rgba(16, 185, 129, 0.2)");
+	                        d3.select("#phase-label").text(`${monthName} ${d.day}`);
+	                        d3.select("#cycle-day").text("Status: Quiet");
+	                    })
+	                    .on("mouseout", function () {
+	                        d3.select(this).attr("fill", "rgba(16, 185, 129, 0.05)");
+	                        resetCenterLabels();
+	                    });
 
-                if (response.ok) {
-                    form.reset();
-                    showForestToast();
-                    if (updateLunarTracker) await updateLunarTracker();
-                }
-            } catch (err) { console.error(err); }
-        }
+	                svg.selectAll(".day-active")
+	                    .data(data).enter().append("path")
+	                    .filter(d => {
+	                        const dDate = new Date(d.startDate);
+	                        return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
+	                    })
+	                    .attr("d", d => arc({day: new Date(d.startDate).getDate()}))
+	                    .attr("fill", d => d.intensity >= 4 ? "#34d399" : d.intensity >= 2 ? "#10b981" : "#064e3b")
+	                    .attr("class", "animate-fadeIn drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]")
+	                    .on("mouseover", (e, d) => {
+	                        const dayNum = new Date(d.startDate).getDate();
+	                        d3.select("#phase-label").text(`Active Day ${dayNum}`);
+	                        d3.select("#cycle-day").text(`Intensity: ${d.intensity}/5`);
+	                    })
+	                    .on("mouseout", resetCenterLabels);
 
-        // 4. AI Chat Logic
-        async function askAI() {
-            const promptInput = document.getElementById('aiPrompt');
-            const responseBox = document.getElementById('aiResponse');
-            const query = promptInput.value;
-            if (!query) return;
+	            } catch (e) { console.error("Data sync failed", e); }
+	        };
 
-            responseBox.innerHTML += `<div class="flex flex-col items-end mb-4 animate-fadeIn">
-                <div class="bg-emerald-500 text-emerald-950 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%] font-semibold">${query}</div>
-            </div>`;
-            
-            promptInput.value = '';
-            const aiId = 'ai-' + Date.now();
-            responseBox.innerHTML += `<div class="flex flex-col mb-4 animate-fadeIn">
-                <div id="${aiId}" class="bg-white/10 text-emerald-100 px-3 py-2 rounded-2xl rounded-tl-none max-w-[85%] border border-white/5">...</div>
-            </div>`;
-            responseBox.scrollTop = responseBox.scrollHeight;
+	        function resetCenterLabels() {
+	            const phaseLabel = d3.select("#phase-label");
+	            const cycleDay = d3.select("#cycle-day");
+	            if(!phaseLabel.empty()) phaseLabel.text("Forest Quiet");
+	            if(!cycleDay.empty()) cycleDay.text(`${monthName} ${currentYear}`);
+	        }
 
-            try {
-                const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(query)}`);
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                const bubble = document.getElementById(aiId);
-                bubble.innerText = '';
+	        updateLunarTracker();
+	        resetCenterLabels();
+	    }
 
-                while (true) {
-                    const {done, value} = await reader.read();
-                    if (done) break;
-                    bubble.innerText += decoder.decode(value, {stream: true}).replace(/data:/g, '');
-                    responseBox.scrollTop = responseBox.scrollHeight;
-                }
-            } catch (e) { document.getElementById(aiId).innerText = "The connection to the forest was lost..."; }
-        }
+	    async function submitOnboarding() {
+	        const form = document.getElementById('onboardingForm');
+	        const formData = new FormData(form);
+	        const data = Object.fromEntries(formData.entries());
 
-        // UI Helpers
-        function toggleAI() {
-            const chat = document.getElementById('aiChatWindow');
-            chat.classList.toggle('hidden');
-            setTimeout(() => chat.classList.toggle('opacity-100'), 10);
-            setTimeout(() => chat.classList.toggle('scale-100'), 10);
-        }
+	        try {
+	            const response = await fetch('/api/v1/user/onboarding', {
+	                method: 'POST',
+	                headers: { 'Content-Type': 'application/json' },
+	                body: JSON.stringify({...data, weight: parseFloat(data.weight)})
+	            });
 
-        function showForestToast() {
-            const t = document.createElement('div');
-            t.className = "fixed top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-emerald-950 px-6 py-3 rounded-full font-bold shadow-2xl animate-fadeIn z-[100]";
-            t.innerText = "✨ Your forest has been updated.";
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+	            if (response.ok) {
+	                document.getElementById('onboardingOverlay').classList.add('hidden');
+	                showForestToast();
+	            }
+	        } catch (err) { console.error("Onboarding failed", err); }
+	    }
 
-        document.getElementById('aiPrompt').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); askAI(); }});
+	    async function saveCycle() {
+	        const form = document.getElementById('cycleForm');
+	        const formData = new FormData(form);
+	        const payload = Object.fromEntries(formData.entries());
+	        try {
+	            const response = await fetch('/api/v1/tracker/log', {
+	                method: 'POST',
+	                headers: {'Content-Type': 'application/json'},
+	                body: JSON.stringify({...payload, intensity: parseInt(payload.intensity)})
+	            });
+	            if (response.ok) {
+	                form.reset();
+	                showForestToast();
+	                if (updateLunarTracker) await updateLunarTracker();
+	            }
+	        } catch (err) {console.error(err);}
+	    }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            updateGreeting();
-            initD3();
-            // Restrict dates
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').setAttribute('max', today);
-        });
-    </script>
+	    async function askAI() {
+	        const promptInput = document.getElementById('aiPrompt');
+	        const responseBox = document.getElementById('aiResponse');
+	        const query = promptInput.value;
+	        if (!query) return;
+
+	        responseBox.innerHTML += `<div class="flex flex-col items-end mb-4 animate-fadeIn"><div class="bg-emerald-500 text-emerald-950 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%] font-semibold">${query}</div></div>`;
+	        promptInput.value = '';
+	        const aiId = 'ai-' + Date.now();
+	        responseBox.innerHTML += `<div class="flex flex-col mb-4 animate-fadeIn"><div id="${aiId}" class="bg-white/10 text-emerald-100 px-3 py-2 rounded-2xl rounded-tl-none max-w-[85%] border border-white/5">...</div></div>`;
+	        responseBox.scrollTop = responseBox.scrollHeight;
+
+	        try {
+	            const response = await fetch(`/api/v1/tracker/ask-ai?question=${encodeURIComponent(query)}`);
+	            const reader = response.body.getReader();
+	            const decoder = new TextDecoder();
+	            const bubble = document.getElementById(aiId);
+	            bubble.innerText = '';
+	            while (true) {
+	                const {done, value} = await reader.read();
+	                if (done) break;
+	                bubble.innerText += decoder.decode(value, {stream: true}).replace(/data:/g, '');
+	                responseBox.scrollTop = responseBox.scrollHeight;
+	            }
+	        } catch (e) { document.getElementById(aiId).innerText = "The connection to the forest was lost..."; }
+	    }
+
+	    function toggleAI() {
+	        const chat = document.getElementById('aiChatWindow');
+	        chat.classList.toggle('hidden');
+	        setTimeout(() => {
+	            chat.classList.toggle('opacity-100');
+	            chat.classList.toggle('scale-100');
+	        }, 10);
+	    }
+
+	    function showForestToast() {
+	        const t = document.createElement('div');
+	        t.className = "fixed top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-emerald-950 px-6 py-3 rounded-full font-bold shadow-2xl animate-fadeIn z-[150]";
+	        t.innerText = "✨ Your forest has been updated.";
+	        document.body.appendChild(t);
+	        setTimeout(() => t.remove(), 3000);
+	    }
+
+	    // --- Single Event Listener Initialization ---
+	    document.addEventListener("DOMContentLoaded", () => {
+	        // 1. Safe injection of Thymeleaf variable
+			// The 'false' inside the parenthesis is a fallback for the IDE
+			const isNewUser = /*[[${isNewUser != null ? isNewUser : false}]]*/ false;
+	        
+	        if (isNewUser) {
+	            const overlay = document.getElementById('onboardingOverlay');
+	            if(overlay) overlay.classList.remove('hidden');
+	        }
+
+	        // 2. Initialize UI Components
+	        updateGreeting();
+	        initD3();
+
+	        // 3. Set Date Constraints
+	        const todayStr = new Date().toISOString().split('T')[0];
+	        document.querySelectorAll('input[type="date"]').forEach(input => input.setAttribute('max', todayStr));
+
+	        // 4. Keyboard Listeners
+	        const aiPrompt = document.getElementById('aiPrompt');
+	        if(aiPrompt) {
+	            aiPrompt.addEventListener('keydown', e => { 
+	                if(e.key === 'Enter' && !e.shiftKey){ 
+	                    e.preventDefault(); 
+	                    askAI(); 
+	                }
+	            });
+	        }
+	    });
+	</script>
 </body>
 </html>

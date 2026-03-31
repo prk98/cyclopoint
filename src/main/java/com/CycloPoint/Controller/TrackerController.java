@@ -130,4 +130,7 @@ public class TrackerController {
 	    response.put("message", "The forest path has been completed.");
 	    return ResponseEntity.ok(response);
 	}
+
+	
+	
 }
